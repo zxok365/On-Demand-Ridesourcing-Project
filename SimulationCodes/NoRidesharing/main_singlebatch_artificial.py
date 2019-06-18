@@ -5,16 +5,47 @@ import random
 import time
 import datetime
 
-import bipartite3_algo1
+import bipartite3_algo
 from request import *
 from vehicle import *
 from Waypoint import WayPoint, MapSystem
 
+
+
+'''Parameter Setting'''
+eps = 1e-6
+cardinal_const = 1000000
+
+'''Simulation Setup'''
+period_length = 30 #i.e. assignment is done each 30-secs
+H = 1 #i.e. number of periods
+CAPACITY = 4 #i.e. maximum capacity of vehicles
+MAX_WAITING_TIME = 240 #i.e. maximum waiting time for request before picked up
+c = 1 #i.e. weightage for trip benefits (active time) compared to the loss (cruising time)
+
+REMOVAL = 500 #i.e. set the allowance for trip removal to manage the network sparsity problems
+ratio = 1.2
+divisor = 1 #i.e. ratio, divisor to set the balance between HIGH and LOW activity vehicles
+seed = 0
+day = 6
+HOUR = 17
+filter_treshold = 10 #to gauge the assignment potential based on reachability of vehicle initial locations (nodes)
+w = 0 #{0 - efficient allocation, 1 - fair allocation}
+
+DATA_TYPE = 'WHOLE' #i.e. {'WHOLE': whole Manhattan area, 'REGION': parts of the map}
+if DATA_TYPE == 'WHOLE':
+    MIN_LIST = [-float("inf")]
+    MAX_LIST = [float("inf")]
+else:
+    MIN_LIST = [-float("inf")] + list(np.linspace(40.72, 40.74, 3)) + [40.75]
+    MAX_LIST = [40.75] + list(np.linspace(40.72, 40.74, 3) + .035) + [float("inf")]
+
+
 #------------------------------------------------------------------------------
 '''Generate the road network'''
 
-manhat_point = pd.read_pickle('D:\\RIDESHARING\\NIPS19\\DataPreprocess\\RoadNetwork\\manhat_point.pkl')
-manhat_edge = pd.read_pickle('D:\\RIDESHARING\\NIPS19\\DataPreprocess\\RoadNetwork\\manhat_edge.pkl')
+manhat_point = pd.read_pickle('..\\..\\Data\\RoadNetwork\\manhat_point.pkl')
+manhat_edge = pd.read_pickle('..\\..\\Data\\RoadNetwork\\manhat_edge.pkl')
 
 TMP_msg = manhat_edge.values
 NodePos = {}
@@ -39,11 +70,10 @@ mapsystem._nearby_node = NearbyNode
 '''Generate the inter-node travel time'''
 
 tt_dict = {}
-HOUR = 17
 node_dict = {}
 tt_list = []
 
-traveltime = pd.read_csv('D:\\RIDESHARING\\NIPS19\\DataPreprocess\\TravelTimePrediction\\FinalLookUpTable\\time_cost' + str(HOUR) + '.csv', index_col=[0, 1], header=None)
+traveltime = pd.read_csv('..\\..\\Data\\TravelTimePrediction\\TravelTime\\time_cost' + str(HOUR) + '.csv', index_col=[0, 1], header=None)
 traveltime.columns = [HOUR]
 tmp_list = list(traveltime[HOUR])
 tot_num = 0
@@ -61,7 +91,7 @@ tt_list += [list(tt_dict.values())]
 #------------------------------------------------------------------------------
 '''Reading Request Data'''
 
-REQ_DATA = pd.read_pickle('D:\\RIDESHARING\\NIPS19\\DataPreprocess\\RequestGenerator\\May_2013_HOUR17_singlebatch.pkl')
+REQ_DATA = pd.read_pickle('..\..\\Data\\RequestGenerator\\May_2013_HOUR17_singlebatch.pkl')
 #------------------------------------------------------------------------------
 '''Function lists:
     1. closest_node - convert geocoordinates to nearest point index in the road network
@@ -234,7 +264,7 @@ def compute_routing(h, t, act_corr, V_STORAGE, REQ_STORAGE, DEMAND_LIST, FIN_ALL
     
     '''Solving for optimal route'''
     if len(NEW_TAXI_LIST) > 0:
-        route_dict = bipartite3_algo1.solve_rtv_graph(h, H, RTV_graph, NEW_TAXI_LIST, DEMAND_LIST, All_edges, Sorting_weight, Value_weight, act_corr, c)
+        route_dict = bipartite3_algo.solve_rtv_graph(h, H, RTV_graph, NEW_TAXI_LIST, DEMAND_LIST, All_edges, Sorting_weight, Value_weight, act_corr, c)
     else:
         route_dict = {}
     
@@ -275,32 +305,6 @@ def compute_routing(h, t, act_corr, V_STORAGE, REQ_STORAGE, DEMAND_LIST, FIN_ALL
             
     return value_sum, ilp_discr, min_driver
 
-#------------------------------------------------------------------------------
-'''Simulation Setup'''    
-DATA_TYPE = 'WHOLE' #i.e. {'WHOLE': whole Manhattan area, 'REGION': parts of the map}
-period_length = 30*1 #i.e. assignment is done each 30-secs 
-H = 1 #i.e. number of periods
-CAPACITY = 4 #i.e. maximum capacity of vehicles
-period_length = 30*1 #i.e. assignment is done each 30-secs
-MAX_WAITING_TIME = 210 + 30
-c = 1 #i.e. weightage for trip benefits (active time) compared to the loss (cruising time)
-eps = 1e-6
-
-REMOVAL = 500 #i.e. set the allowance for trip removal to manage the network sparsity problems
-
-ratio = 1.2
-divisor = 1 #i.e. ratio, divisor to set the balance between HIGH and LOW activity vehicles
-seed = 0
-day = 6
-filter_treshold = 10 #to gauge the assignment potential based on reachability of vehicle initial locations (nodes)
-w = 0 #{0 - efficient allocation, 1 - fair allocation}
-
-if DATA_TYPE == 'WHOLE':
-    MIN_LIST = [-float("inf")]
-    MAX_LIST = [float("inf")]
-else:
-    MIN_LIST = [-float("inf")] + list(np.linspace(40.72, 40.74, 3)) + [40.75] 
-    MAX_LIST = [40.75] + list(np.linspace(40.72, 40.74, 3) + .035) + [float("inf")] 
 
 #------------------------------------------------------------------------------
 '''STARTING SIMULATION'''
@@ -459,7 +463,7 @@ for h in range(1, H+1):
     
 TOT_SERVED, SERVICE_RATE, MEAN_WAIT, MEAN_DELAY, MEAN_INTRIP = [0 for i in range(5)]
 
-f = open('D:\\RIDESHARING\\OutputResults\\Tradeoff_w_Horizons.csv', 'a', newline = '')
+f = open('Tradeoff_w_Horizons.csv', 'a', newline = '')
 to_append = [[DATA_TYPE, REMOVAL, removal_rate, MAX_WAITING_TIME, lat_min, HOUR, H, TAXI_TOTAL_NUM, REQ_NUM, weight_trial, 
               TOT_SERVED, SERVICE_RATE, MEAN_WAIT, MEAN_DELAY, MEAN_INTRIP,
               np.sum(list_normal), np.std(list_normal), np.min(list_normal), np.max(list_normal)]]
@@ -468,7 +472,7 @@ writer.writerows(to_append)
 f.close()
 
 '''Record list_normal as column'''
-f = open('D:\\RIDESHARING\\OutputResults\\ActiveTime.csv', 'a', newline = '')
+f = open('ActiveTime.csv', 'a', newline = '')
 to_append = [[HOUR, weight_type] + list_normal]
 writer = csv.writer(f)
 writer.writerows(to_append)

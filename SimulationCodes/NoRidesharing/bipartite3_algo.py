@@ -3,41 +3,39 @@ import csv
 import HungarianAlgorithm as HA
 
 ROUND_NUM = 100
-eps = 1e-6
 
 '''Functions list:
     1. solve_rtv_graph - main function; taking in the bipartite graph essentials and other infos constructed in the main script 
     to output final routing and internally update attributes
     2. ReallocAlgo - Algorithm 1 implementation
     3. match_func - computing maximum weight matching (using Hungarian Algorithm)'''
-
+    
 def ReallocAlgo(lmbd, M_eff, M_fair, act_eff, act_fair, min_eff, min_fair, taxi_list, sorting_weight, all_edges):
 
-    M_eff = sorted(M_eff)
-    M_fair = sorted(M_fair)
+
     V_eff, R_eff = zip(*M_eff)
     V_fair, R_fair = zip(*M_fair)
-
+    
     V_eff = list(V_eff)
     R_eff = list(R_eff)
     V_fair = list(V_fair)
     R_fair = list(R_fair)
-
+    
     V_fin = list(V_eff)
     R_fin = list(R_eff)
-
+    
     act_fin = act_eff[:]
     act_check = [x < lmbd*min_fair for x in act_fin] #i.e. binaries indicating the vehicle-request pair that needs reallocation
     
     while sum(act_check)>0:
         print('LOOP 1')
         V_sort = sorted([v._vid for v in taxi_list])
-
+        
         ind = act_check.index(1) #i.e. initialize the index of reallocation 
         v0 = V_sort[ind]
         r0 = R_fair[ind] 
         print(v0)
-
+        
         while True:
             print('LOOP 2')
             ind0 = V_fin.index(v0)
@@ -73,21 +71,22 @@ def ReallocAlgo(lmbd, M_eff, M_fair, act_eff, act_fair, min_eff, min_fair, taxi_
     M_fin = list(zip(V_fin, R_fin))
     
     return M_fin
-        
+    
 def match_func(w, all_left, all_right):
+            
     match_tmp = list(HA.maxWeightMatching(w))
 
     match_sol = []
     unassigned_v = []
-
+    
     for i in match_tmp[0].keys():
         j = match_tmp[0][i]
-
+        
         if i > len(all_left) - 1:
             continue
         else:
             vid = all_left[i]
-
+            
         if j > len(all_right) - 1:
             print('j:', j)
             print('vid:', vid)
@@ -95,21 +94,20 @@ def match_func(w, all_left, all_right):
             continue
         else:
             rid = all_right[j]
-
+            
         if w[i][j] == 0:
-            match_sol += [[vid, -vid - 1]]
+            match_sol += [[vid, -vid-1]]
             continue
-
+                        
         match_sol += [[vid, rid]]
 
     if len(unassigned_v) > 0:
         print('v_list:', unassigned_v)
-
+        
     return match_sol
 
-def solve_rtv_graph(h, H, capacity, rtv, taxi_list, demand_list, all_edges, sorting_weight,
-                    value_weight, lmbd, min_vid, cur_time):
-
+def solve_rtv_graph(h, H, rtv, taxi_list, demand_list, all_edges, sorting_weight, value_weight, lmbd, c):
+    
     '''To store all possible solutions and their corresponding measures'''
     END_SOLUTIONS = []
     TOT_VALUE = []
@@ -134,7 +132,7 @@ def solve_rtv_graph(h, H, capacity, rtv, taxi_list, demand_list, all_edges, sort
         j = all_right.index(v)
         
         w[i][j] = int(ROUND_NUM*value_weight[eid])
-    
+        
     '''Start iterations for all possible allocations'''
     iter_num = 0
     cur_min = -999999999
@@ -179,10 +177,10 @@ def solve_rtv_graph(h, H, capacity, rtv, taxi_list, demand_list, all_edges, sort
     print('TOT_MIN:', TOT_MIN)
     print('TOT_MAX:', TOT_MAX)
     print('TOT_VARIANCE:', TOT_VARIANCE)
-
+    
     '''Recording single-batch trade-off'''
     if len(set(TOT_VALUE)) > 1:
-        f = open('BipartiteTradeoff_rideshare.csv', 'a', newline = '')
+        f = open('BipartiteTradeoff.csv', 'a', newline = '')
         to_append = [['round', ':', h]] + [[a, b, c] for a,b,c in zip(TOT_VALUE, TOT_VARIANCE, TOT_MIN)] + [['-', '-', '-']]
         writer = csv.writer(f)
         writer.writerows(to_append)
@@ -190,8 +188,8 @@ def solve_rtv_graph(h, H, capacity, rtv, taxi_list, demand_list, all_edges, sort
 
     '''Compute desired lambda-matching'''
     F_opt = TOT_MIN[-1]
-    F_sol = lmbd * F_opt #i.e. threshold for minimum accumulated active time
-
+    F_sol = lmbd*F_opt #i.e. threshold for minimum accumulated active time
+    
     M_eff = sorted(END_SOLUTIONS[0])
     act_eff = [sorting_weight[all_edges.index(list(e))] for e in M_eff]
     min_eff = min(act_eff)
@@ -200,54 +198,39 @@ def solve_rtv_graph(h, H, capacity, rtv, taxi_list, demand_list, all_edges, sort
         M_fin = M_eff #i.e. minimum threshold can be smaller than the minimum in the efficient solution
     else:
         print('lambda*F_opt:', F_sol)
- 
-        M_fair = END_SOLUTIONS[len(END_SOLUTIONS) - 1]
+        
+        M_fair = sorted(END_SOLUTIONS[-1])
         act_fair = [sorting_weight[all_edges.index(list(e))] for e in M_fair]
 
-        M_fin = ReallocAlgo(lmbd, M_eff, M_fair, act_eff, act_fair, min_eff, F_opt, taxi_list, sorting_weight,
-                            all_edges)
-                            
-    act_fin = [sorting_weight[all_edges.index(list(e))] for e in M_fin]
-    tot_value = sum(act_fin)
-
+        M_fin = ReallocAlgo(lmbd, M_eff, M_fair, act_eff, act_fair, min_eff, F_opt, taxi_list, sorting_weight, all_edges)
+    
     '''Assigning final optimal route to vehicles'''
     route_dict = {}
-    act_list = []
-
+    
     for m in M_fin:
         vid = list(m)[0]
         rid = list(m)[1]
         cur_vid = taxi_id.index(vid)
-                    
-        '''skip if fixed'''
-        if len(taxi_list[cur_vid]._boarded_requests) == capacity:
-            act_list += [taxi_list[cur_vid]._allocated_value1]
+        
+        '''Skip if assigned requests are fixed'''
+        if len(taxi_list[cur_vid]._boarded_requests) > 0 or len(taxi_list[cur_vid]._assigned_requests) > 0:
             continue
         
-        act_list += [taxi_list[cur_vid]._allocated_value1 + rtv[vid][rid][1] - rtv[vid][rid][2]]
-        
         '''Update vehicle accumulated values'''
-        if h == H: #i.e. only last period, otherwise it is updated in the main script 
-            #due to possible change of routing from appending new requests
-            if rid < 0:
-                r_list = taxi_list[cur_vid]._assigned_requests + []
-                assigned_sum = sum([r0._trip_length for r0 in r_list])
-                incr_value = assigned_sum - rtv[vid][rid][2]
-            else:
-                cur_rid = demand_id.index(rid)
-                r_list = taxi_list[cur_vid]._assigned_requests + [demand_list[cur_rid]]
-                assigned_sum = sum([r0._trip_length for r0 in r_list])
-                incr_value = assigned_sum - rtv[vid][rid][2]
-            
-            taxi_list[cur_vid].update_allocated(incr_value)
-                    
+        incr1 = c*rtv[vid][rid][1] - rtv[vid][rid][2]
+        taxi_list[cur_vid].update_allocated(incr1)
+        
         '''Assign routing to route_dict'''
-        tmp_route = rtv[vid][rid][0]
-        
-        if len(tmp_route) == 0:
+        if rid < 0:
             route_dict[vid] = ()
-        else:
-            reaching_time, rid, p_or_d, cost = zip(*rtv[vid][rid][0])
-            route_dict[vid] = tuple(list(zip(rid, p_or_d)))
-        
-    return [route_dict, tot_value, np.std(act_list), np.min(act_list)]
+        else:                    
+            t_value = rtv[vid][rid][0]
+            t_active = rtv[vid][rid][1]# - taxi_list[cur_vid]._active_timecost
+            
+            cur_rid = demand_id.index(rid)
+            demand_list[cur_rid].update_trip_value(t_value, t_active)
+            
+            route_dict[vid] = ((rid, 0), (rid, 1))
+                
+    return route_dict
+    

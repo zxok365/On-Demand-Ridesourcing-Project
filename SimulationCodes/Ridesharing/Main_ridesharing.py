@@ -20,7 +20,6 @@ cardinal_const = 1000000
 
 '''Simulation Setting'''
 
-HOUR = 17
 period_length = 30 #i.e. assignment is done each 30-secs
 H = 2 * 3600 // period_length #i.e. number of periods in 2-hour horizon
 TAXI_TOTAL_NUM = 2000
@@ -39,12 +38,10 @@ else:
     MAX_LIST = [40.74, 40.75, 40.76, 40.77, 40.78, 40.79, float("inf")]
 
 SIMULATION_DAY = [3, 29, 14, 11, 27, 25, 6, 17, 7, 8] #i.e. the date to simulate
+HOUR = 17
+
 '''Vehicle Behaviour Setting'''
 RANDOM_VEHICLE_POS_START = False
-WANDERING = False
-AIM_WANDERING = False
-POPULAR_NODE1 = -1
-POPULAR_NODE2 = -1
 
 '''Generate the road network'''
 
@@ -190,12 +187,7 @@ def status_update(t, V_STORAGE, FIN_ALLOC, STACKED_ROUTE, STACKED_TIME):
                     plan_pos = cur_r._destination_waypoint
                     
             prev_moving_time = moving_time
-        
-        if moving_time >= period_length / 2. and WANDERING == True:
-            if AIM_WANDERING == False:
-                cur_v.wandering(moving_time, mapsystem, random_seed= cur_v._vid * RANDOM_SEED1  + t * RANDOM_SEED2, time_gap= period_length / 2)
-            else:
-                cur_v.aim_wandering(moving_time, mapsystem, POPULAR_NODE1, POPULAR_NODE2)
+
 
 
 def compute_routing(h, t, act_corr, V_STORAGE, REQ_STORAGE, DEMAND_LIST, FIN_ALLOC):

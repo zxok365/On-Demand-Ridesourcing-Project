@@ -1,6 +1,6 @@
 import numpy as np
 
-import searching1
+import searching
 from request import Request
 from Waypoint import WayPoint
 
@@ -56,14 +56,14 @@ class Vehicle:
 
         for x in self._boarded_requests:
             waiting_list += [(x.get_destination_id, x.latest_dropoff_time(time_cost_network), x.get_id, 1, x._size)]
-            min_time_cost += x._size * searching1.distance(self.get_point_id, x.get_destination_id,time_cost_network)
+            min_time_cost += x._size * searching.distance(self.get_point_id, x.get_destination_id,time_cost_network)
 
         for x in self._assigned_requests:
             waiting_list += [(x.get_origin_id, x.latest_acceptable_pickup_time, x.get_id, 0, x._size)]
             waiting_list += [(x.get_destination_id, x.latest_dropoff_time(time_cost_network), x.get_id, 1, x._size)]
             min_time_cost += x._size * x.min_time_cost(time_cost_network)
 
-        feasible, time_cost, routing = searching1.check_feasible(cur_time=cur_time, cur_pos=self.get_point_id,dst_list=waiting_list, time_cost_network=time_cost_network, now_cost=0-min_time_cost)
+        feasible, time_cost, routing = searching.check_feasible(cur_time=cur_time, cur_pos=self.get_point_id,dst_list=waiting_list, time_cost_network=time_cost_network, now_cost=0-min_time_cost)
 
         self._cur_time = cur_time
         self._available = feasible

@@ -1,5 +1,5 @@
 from Waypoint import WayPoint
-import searching1
+import searching
 
 MAX_WAITING_TIME = 180
 MAX_DELAY = 6*60
@@ -100,7 +100,7 @@ class Request:
         return self._max_waiting_time
     
     def min_time_cost(self, time_cost_network) -> float:
-        dist = searching1.distance(self._origin_id, self._destination_id, time_cost_network)
+        dist = searching.distance(self._origin_id, self._destination_id, time_cost_network)
         return dist
     
     def latest_dropoff_time(self, map) -> float:
