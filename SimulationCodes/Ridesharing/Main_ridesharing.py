@@ -74,7 +74,7 @@ tt_dict = {}
 node_dict = {}
 tt_list = []
 
-traveltime = pd.read_csv('..\\..\\Data\\TravelTimePrediction\\TravelTime\\time_cost' + str(HOUR) + '.csv', index_col=[0, 1], header=None)
+traveltime = pd.read_csv('..\\..\\Data\\TravelTimePrediction\\time_cost' + str(HOUR) + '.csv', index_col=[0, 1], header=None)
 traveltime.columns = [HOUR]
 tmp_list = list(traveltime[HOUR])
 tot_num = 0
