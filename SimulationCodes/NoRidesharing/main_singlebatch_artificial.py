@@ -5,7 +5,7 @@ import random
 import time
 import datetime
 
-import bipartite3_algo
+import bipartite_algo
 from request import *
 from vehicle import *
 from Waypoint import WayPoint, MapSystem
@@ -264,7 +264,7 @@ def compute_routing(h, t, act_corr, V_STORAGE, REQ_STORAGE, DEMAND_LIST, FIN_ALL
     
     '''Solving for optimal route'''
     if len(NEW_TAXI_LIST) > 0:
-        route_dict = bipartite3_algo.solve_rtv_graph(h, H, RTV_graph, NEW_TAXI_LIST, DEMAND_LIST, All_edges, Sorting_weight, Value_weight, act_corr, c)
+        route_dict = bipartite_algo.solve_rtv_graph(h, H, RTV_graph, NEW_TAXI_LIST, DEMAND_LIST, All_edges, Sorting_weight, Value_weight, act_corr, c)
     else:
         route_dict = {}
     

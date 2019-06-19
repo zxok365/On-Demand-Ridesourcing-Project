@@ -26,7 +26,7 @@ TAXI_TOTAL_NUM = 2000
 CAPACITY = 4 #i.e. maximum capacity of vehicles
 ACTIVE_CONSTANT_WEIGHT = 1 #i.e. weightage for trip benefits (active time) compared to the loss (cruising time)
 MAX_WAITING_TIME = 150 #i.e. maximum waiting time for request before picked up
-MAX_SERVE_NUM = 2 #i.e. maximum number of requests to be served together by 1 vehicle
+MAX_SERVE_NUM = 1 #i.e. maximum number of requests to be served together by 1 vehicle
 REMOVAL = 500 #i.e. set the allowance for trip removal to manage the network sparsity problems
 
 DATA_TYPE = 'WHOLE' #i.e. {'WHOLE': whole Manhattan area, 'REGION': parts of the map}
