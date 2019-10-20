@@ -1,8 +1,8 @@
 # Trip-Vehicle Assignment Algorithm (REASSIGN)
 The code contained in this repository represents an implementation of REASSIGN Algorithm depicted in:
 
-Balancing Efficiency and Fairness in On-Demand Ridesourcing (in Proc. NeurIPS 2019),<br/>
-*Nixie S. Lesmana, Xuan Zhang, Xiaohui Bei*
+Balancing Efficiency and Fairness in On-Demand Ridesourcing (in Proc. *NeurIPS 2019*)<br/>
+Nixie S. Lesmana, Xuan Zhang, Xiaohui Bei
 
 ## What is REASSIGN?
 REASSIGN is a *graph-based reassignment algorithm* that balances system efficiency and driver fairness in ridesourcing platform decision making. It allows flexible shifting between decisions with theoretical guarantees on the trade-off.
