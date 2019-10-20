@@ -5,7 +5,7 @@ Balancing Efficiency and Fairness in On-Demand Ridesourcing (in Proc. *NeurIPS 2
 Nixie S. Lesmana, Xuan Zhang, Xiaohui Bei
 
 ## What is REASSIGN?
-REASSIGN is a *graph-based reassignment algorithm* that balances system efficiency and driver fairness in ridesourcing platform decision making. It allows flexible shifting between decisions with theoretical guarantees on the trade-off.
+REASSIGN is a *graph-based reassignment algorithm* that balances two objectives in ridesourcing platform decision making: system efficiency and driver fairness. It allows flexible shifting between decisions with trade-off guarantees.
 
 ## Repository Structure
 The repository is organized into folders and subfolders, which has been named according to the scripts directory that we used in the codes. A few things to note of:
