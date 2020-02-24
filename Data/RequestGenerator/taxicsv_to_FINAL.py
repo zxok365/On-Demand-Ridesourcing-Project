@@ -57,7 +57,27 @@ for rd_msg in TMP_msg:
 mapsystem = MapSystem()
 mapsystem._node_dict = NodePos
 mapsystem._nearby_node = NearbyNode
+#------------------------------------------------------------------------------
+'''Generate the inter-node travel time'''
 
+tt_dict = {}
+node_dict = {}
+tt_list = []
+
+traveltime = pd.read_csv('..\\..\\Data\\TravelTimePrediction\\time_cost' + str(HOUR) + '.csv', index_col=[0, 1], header=None)
+traveltime.columns = [HOUR]
+tmp_list = list(traveltime[HOUR])
+tot_num = 0
+
+for n1, n2 in zip(traveltime.index.get_level_values(0), traveltime.index.get_level_values(1)):
+    
+    tt_dict[(n1, n2)] = tmp_list[tot_num]
+    node_dict[(n1,n2)] = tot_num
+    tot_num += 1        
+
+mapsystem.update_distance(cur_time = 0, distance = tt_dict) #i.e. distance = travel time (in secs)
+
+tt_list += [list(tt_dict.values())]
 #------------------------------------------------------------------------------
 '''Filter only Sunday, 5 May 2013, 1700 - 1900 & Data Cleaning'''
 
