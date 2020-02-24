@@ -11,7 +11,7 @@ REASSIGN is a *graph-based reassignment algorithm* that balances two objectives 
 The repository is organized into folders and subfolders, which has been named according to the scripts directory that we used in the codes. A few things to note of:
 
 - Main scripts for our experiments can be found in [Simulation Codes](./SimulationCodes). 
-- In [Data](./Data) subfolders, several files have been omitted due to upload size limit. These files can be downloaded through external link (refer to [Data Preprocessing, Simulation Setup, and Code Summary](./SI.pdf)). 
+- In [Data](./Data) subfolders, several files have been omitted due to upload size limit. These files can be downloaded through this [external link](https://drive.google.com/open?id=1Zs3Qi6V4K0WiK4zYP-S1QMTJCBh1xk30). 
 - [Results](./Results) do not contain our actual simulation results. These files are created as samples. 
 
 For more details:
