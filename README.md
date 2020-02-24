@@ -1,7 +1,7 @@
 # Trip-Vehicle Assignment Algorithm (REASSIGN)
 The code contained in this repository represents a Python implementation of REASSIGN Algorithm depicted in:
 
-Balancing Efficiency and Fairness in On-Demand Ridesourcing (in Proc. *NeurIPS 2019*)<br/>
+[Balancing Efficiency and Fairness in On-Demand Ridesourcing](http://papers.nips.cc/paper/8772-balancing-efficiency-and-fairness-in-on-demand-ridesourcing) (in Proc. *NeurIPS 2019*)<br/>
 Nixie S. Lesmana, Xuan Zhang, Xiaohui Bei
 
 ## What is REASSIGN?
